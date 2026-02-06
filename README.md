@@ -2,8 +2,6 @@
 
 A comprehensive web-based simulator for visualizing and comparing different CPU scheduling algorithms used in operating systems.
 
-![CPU Scheduler](screenshot-preview.png)
-
 ## 🎯 Features
 
 - **5 Scheduling Algorithms Implemented:**
@@ -14,9 +12,10 @@ A comprehensive web-based simulator for visualizing and comparing different CPU 
   - Multilevel Feedback Queue (MLFQ) - 3-level queue with aging
 
 - **Interactive Visualization:**
-  - Dynamic Gantt chart showing process execution timeline
+  - Dynamic Gantt chart with detailed timing information
+  - Hover tooltips showing process details
+  - Time ruler with tick marks
   - Real-time metrics calculation
-  - Responsive and modern UI design
 
 - **Comprehensive Metrics:**
   - Waiting Time
@@ -24,11 +23,31 @@ A comprehensive web-based simulator for visualizing and comparing different CPU 
   - Response Time
   - Average values for all metrics
 
-- **User-Friendly Interface:**
-  - Easy process input
-  - Sample data loader
-  - Clear results presentation
-  - Export-ready format
+- **Modern UI:**
+  - Dark/Light theme toggle
+  - Fully responsive (mobile-friendly)
+  - SVG icons throughout
+  - Smooth animations and transitions
+
+- **Import/Export:**
+  - Import processes from JSON or CSV files
+  - Export simulation results to CSV
+
+## 📁 Project Structure
+
+```
+CPU Scheduling Project/
+├── index.html          # Main HTML file
+├── css/
+│   └── style.css       # All styling (themes, responsive, components)
+├── js/
+│   ├── algorithm.js    # Scheduling algorithm implementations
+│   └── app.js          # UI logic and event handling
+├── sample-data.json    # Sample test scenarios
+├── test_sample.json    # Simple test data (JSON)
+├── test_sample.csv     # Simple test data (CSV)
+└── README.md           # This file
+```
 
 ## 🚀 Quick Start
 
@@ -40,11 +59,11 @@ A comprehensive web-based simulator for visualizing and comparing different CPU 
 
 1. **Open the file:**
    ```bash
-   # Simply open cpu-scheduler.html in your web browser
+   # Simply open index.html in your web browser
    # Double-click the file or use:
-   open cpu-scheduler.html          # macOS
-   start cpu-scheduler.html         # Windows
-   xdg-open cpu-scheduler.html      # Linux
+   open index.html          # macOS
+   start index.html         # Windows
+   xdg-open index.html      # Linux
    ```
 
 2. **Or use a local server (optional):**
@@ -52,10 +71,7 @@ A comprehensive web-based simulator for visualizing and comparing different CPU 
    # Python 3
    python -m http.server 8000
    
-   # Python 2
-   python -m SimpleHTTPServer 8000
-   
-   # Then open: http://localhost:8000/cpu-scheduler.html
+   # Then open: http://localhost:8000
    ```
 
 ## 📖 How to Use
@@ -63,15 +79,14 @@ A comprehensive web-based simulator for visualizing and comparing different CPU 
 ### 1. Configure Processes
 
 **Option A: Load Sample Data**
-- Click "Load Sample Data" to populate with example processes
-- Sample includes 4 processes with varying arrival and burst times
+- Click "Sample" to populate with example processes
 
-**Option B: Add Custom Processes**
-- Click "+ Add Process" to add a new process
-- Enter values for:
-  - **Arrival Time:** When the process arrives in the ready queue
-  - **Burst Time:** CPU time required by the process
-  - **Priority:** (Optional) Used for priority-based scheduling
+**Option B: Import from File**
+- Click "Import" to load processes from JSON or CSV
+
+**Option C: Add Custom Processes**
+- Enter Arrival and Burst times
+- Click the + button to add
 
 ### 2. Select Algorithm
 
@@ -80,7 +95,7 @@ Choose from the dropdown menu:
 - **SJF:** Shortest job executed first (non-preemptive)
 - **SRT:** Preemptive version of SJF
 - **RR:** Time-sliced execution with quantum
-- **MLFQ:** Multi-level queues with feedback
+- **MLFQ:** Multi-level queues with feedback and aging
 
 ### 3. Configure Time Quantum
 
@@ -91,373 +106,114 @@ For Round Robin and MLFQ:
 ### 4. Run Simulation
 
 - Click "Run Simulation"
-- View the Gantt chart showing execution timeline
-- Analyze the metrics table
-- Review average performance statistics
-
-### 5. Compare Algorithms
-
-Run the same process set with different algorithms to compare:
-- Which has lowest average waiting time?
-- Which provides best response time?
-- Trade-offs between fairness and efficiency
+- View the enhanced Gantt chart showing:
+  - Process IDs and durations
+  - Start/End times
+  - Hover for detailed tooltips
+  - Time ruler below
+- Analyze the metrics cards and detailed table
+- Export results to CSV if needed
 
 ## 🧮 Algorithm Descriptions
 
 ### First Come First Serve (FCFS)
 **Type:** Non-preemptive
 
-**How it works:**
-- Processes executed in the order they arrive
-- Once a process starts, it runs to completion
-- Simple but can cause convoy effect
-
-**Best for:**
-- Batch systems
-- Simple task scheduling
-- When fairness is priority over efficiency
-
-**Pros:**
-- Simple to implement
-- No starvation
-- Fair in arrival order
-
-**Cons:**
-- Poor average waiting time
-- Convoy effect with long processes
-- No priority consideration
+Processes executed in arrival order. Simple but can cause convoy effect.
 
 ### Shortest Job First (SJF)
 **Type:** Non-preemptive
 
-**How it works:**
-- Among available processes, execute the one with shortest burst time
-- Minimizes average waiting time (provably optimal for non-preemptive)
-- Process runs to completion once started
-
-**Best for:**
-- Batch processing
-- Known process durations
-- Minimizing average wait time
-
-**Pros:**
-- Optimal average waiting time
-- Good throughput
-- Efficient for known burst times
-
-**Cons:**
-- Requires knowing burst times
-- Can cause starvation of long processes
-- Not practical for interactive systems
+Among available processes, execute shortest burst time first. Optimal average waiting time.
 
 ### Shortest Remaining Time (SRT)
 **Type:** Preemptive
 
-**How it works:**
-- Preemptive version of SJF
-- If a new process arrives with shorter remaining time, current process is preempted
-- Always executes process with shortest remaining time
-
-**Best for:**
-- Real-time systems
-- Time-critical applications
-- Dynamic process environments
-
-**Pros:**
-- Better average waiting time than SJF
-- More responsive to new arrivals
-- Optimal for preemptive scheduling
-
-**Cons:**
-- Higher context switching overhead
-- Possible starvation
-- Requires constant monitoring
+Preemptive SJF. New arrivals with shorter remaining time preempt current process.
 
 ### Round Robin (RR)
 **Type:** Preemptive
 
-**How it works:**
-- Each process gets a fixed time quantum
-- Processes cycle through ready queue
-- Preempted if quantum expires before completion
-- Fair time distribution among processes
-
-**Best for:**
-- Time-sharing systems
-- Interactive environments
-- Equal priority processes
-
-**Pros:**
-- Fair CPU allocation
-- Good response time
-- No starvation
-- Bounded waiting time
-
-**Cons:**
-- Average waiting time can be high
-- Performance depends on quantum size
-- Higher context switching
-
-**Quantum Selection:**
-- Too small: Excessive context switching
-- Too large: Approaches FCFS
-- Typical: 10-100ms in real systems
+Each process gets fixed time quantum. Fair CPU allocation, good response time.
 
 ### Multilevel Feedback Queue (MLFQ)
 **Type:** Preemptive, Adaptive
 
-**How it works:**
-- Multiple queues with different priorities
-- New processes start in highest priority queue
-- Processes demoted if they use full quantum
-- Aging can promote long-waiting processes
-- Different quantum per queue level
-
-**Implementation:**
 - **Queue 0:** Quantum = 2 (highest priority)
 - **Queue 1:** Quantum = 4 (medium priority)
 - **Queue 2:** FCFS (lowest priority)
-
-**Best for:**
-- General-purpose operating systems
-- Mixed workload (I/O and CPU-bound)
-- Interactive systems
-
-**Pros:**
-- Adapts to process behavior
-- Good response for interactive tasks
-- Prevents starvation with aging
-- Balances throughput and response
-
-**Cons:**
-- Complex implementation
-- Requires parameter tuning
-- More overhead
+- Processes demoted after using full quantum
+- Aging prevents starvation (promote after waiting 10 time units)
 
 ## 📊 Understanding Metrics
 
-### Waiting Time (WT)
-- Time spent waiting in ready queue
-- **Formula:** `WT = Turnaround Time - Burst Time`
-- Lower is better
-- Indicates system efficiency
+| Metric | Formula | Description |
+|--------|---------|-------------|
+| **Waiting Time** | TAT - Burst | Time spent waiting in ready queue |
+| **Turnaround Time** | Completion - Arrival | Total time from arrival to completion |
+| **Response Time** | First Start - Arrival | Time from arrival to first execution |
 
-### Turnaround Time (TAT)
-- Total time from arrival to completion
-- **Formula:** `TAT = Completion Time - Arrival Time`
-- Includes waiting + execution time
-- Key user-perceived metric
+## 📥 Import File Formats
 
-### Response Time (RT)
-- Time from arrival to first execution
-- **Formula:** `RT = First Start Time - Arrival Time`
-- Critical for interactive systems
-- Measures system responsiveness
-
-### Example Calculation
-
-```
-Process: P1
-Arrival Time: 0
-Burst Time: 5
-First Start Time: 3
-Completion Time: 8
-
-Response Time = 3 - 0 = 3
-Turnaround Time = 8 - 0 = 8
-Waiting Time = 8 - 5 = 3
+### JSON Format
+```json
+[
+    { "arrival": 0, "burst": 5 },
+    { "arrival": 2, "burst": 3 },
+    { "arrival": 4, "burst": 8 }
+]
 ```
 
-## 🎨 Sample Scenarios
-
-### Scenario 1: Convoy Effect (FCFS Problem)
-```
-P1: Arrival=0, Burst=20
-P2: Arrival=1, Burst=3
-P3: Arrival=2, Burst=3
-P4: Arrival=3, Burst=3
-
-FCFS Average WT: ~17
-SJF Average WT: ~7
+### CSV Format
+```csv
+Arrival,Burst
+0,5
+2,3
+4,8
 ```
 
-### Scenario 2: I/O Bound vs CPU Bound
-```
-P1: Arrival=0, Burst=10  (CPU-bound)
-P2: Arrival=1, Burst=2   (I/O-bound)
-P3: Arrival=2, Burst=1   (I/O-bound)
-P4: Arrival=3, Burst=8   (CPU-bound)
+## 🎨 Theme Support
 
-RR (quantum=2) provides better response for short processes
-MLFQ adapts to process types
-```
+Toggle between Dark and Light modes using the sun/moon button in the sidebar header.
 
-### Scenario 3: Starvation Example
-```
-Long process with continuous short arrivals
-P1: Arrival=0, Burst=15
-P2: Arrival=2, Burst=1
-P3: Arrival=4, Burst=1
-P4: Arrival=6, Burst=1
-...
+## 📱 Responsive Design
 
-SJF/SRT: P1 may starve
-RR/MLFQ: Fair allocation guaranteed
-```
+The application is fully responsive and works on:
+- Desktop (sidebar + main content layout)
+- Tablet (stacked layout)
+- Mobile (compact layout with optimized touch targets)
 
 ## 🔧 Customization
 
 ### Modifying MLFQ Parameters
 
-Edit the `mlfq()` function in the HTML file:
-
+Edit `js/algorithm.js`:
 ```javascript
-const queues = [[], [], []];        // Number of queues
 const quantums = [2, 4, Infinity];  // Quantum for each level
-
-// To add a 4th queue:
-const queues = [[], [], [], []];
-const quantums = [1, 2, 4, Infinity];
+const AGING_THRESHOLD = 10;         // Time before promotion
 ```
 
 ### Changing Visual Theme
 
-CSS custom properties in `:root`:
-
+Edit CSS variables in `css/style.css`:
 ```css
 :root {
-    --primary: #00ff41;      /* Main accent color */
-    --secondary: #ff006e;    /* Secondary accent */
-    --tertiary: #00d9ff;     /* Tertiary accent */
-    --bg-dark: #0a0e27;      /* Background */
+    --accent: #6366f1;      /* Main accent color */
+    --bg-primary: #0f172a;  /* Background */
 }
 ```
-
-### Adding New Algorithms
-
-1. Implement the algorithm function:
-```javascript
-function myAlgorithm(processes) {
-    // Your implementation
-    return { processes, timeline };
-}
-```
-
-2. Add to the switch statement in `simulate()`:
-```javascript
-case 'myalgo':
-    result = myAlgorithm(processes);
-    break;
-```
-
-3. Add option to select dropdown in HTML
 
 ## 📈 Performance Comparison
 
-### Typical Results (Sample Data)
+| Algorithm | Avg WT | Avg TAT | Best For |
+|-----------|--------|---------|----------|
+| FCFS | High | High | Simple batch systems |
+| SJF | Optimal | Good | Known burst times |
+| SRT | Best | Best | Real-time systems |
+| RR | Medium | Medium | Time-sharing, interactive |
+| MLFQ | Good | Good | General-purpose OS |
 
-| Algorithm | Avg WT | Avg TAT | Avg RT | Context Switches |
-|-----------|--------|---------|--------|------------------|
-| FCFS      | 7.75   | 13.25   | 7.75   | 0                |
-| SJF       | 7.00   | 12.50   | 7.00   | 0                |
-| SRT       | 3.00   | 8.50    | 1.25   | ~6               |
-| RR (q=2)  | 7.00   | 12.50   | 2.25   | ~8               |
-| MLFQ      | 5.50   | 11.00   | 2.00   | ~10              |
-
-*Results vary based on process characteristics*
-
-### When to Use Each Algorithm
-
-**Use FCFS when:**
-- Simplicity is priority
-- All processes similar length
-- Batch processing environment
-
-**Use SJF when:**
-- Burst times are known
-- Minimizing average wait is critical
-- Batch system with job time estimates
-
-**Use SRT when:**
-- Need optimal preemptive scheduling
-- Can tolerate context switching
-- Real-time requirements
-
-**Use RR when:**
-- Time-sharing system
-- Interactive users
-- Equal priority for all processes
-- Fair allocation required
-
-**Use MLFQ when:**
-- General-purpose OS
-- Mixed workload types
-- Both interactive and batch processes
-- Need adaptability
-
-## 🐛 Troubleshooting
-
-### Gantt Chart Not Displaying
-- Ensure processes have valid burst times (> 0)
-- Check browser console for errors
-- Try clearing results and re-running
-
-### Incorrect Metrics
-- Verify arrival times are in ascending order
-- Check burst times are positive integers
-- Ensure time quantum > 0 for RR/MLFQ
-
-### Performance Issues
-- Limit processes to < 20 for complex algorithms
-- Reduce time quantum if simulation is slow
-- Use a modern browser
-
-## 📚 Educational Resources
-
-### Key Concepts to Understand
-
-1. **Process States:** New → Ready → Running → Waiting → Terminated
-2. **Context Switching:** Overhead of saving/restoring process state
-3. **Preemption:** Interrupting running process for another
-4. **Starvation:** Process waiting indefinitely
-5. **Aging:** Gradually increasing priority
-
-### Recommended Reading
-
-- Operating System Concepts (Silberschatz, Galvin, Gagne)
-- Modern Operating Systems (Tanenbaum)
-- Operating Systems: Three Easy Pieces (Arpaci-Dusseau)
-
-### Practice Exercises
-
-1. **Exercise 1:** Run all algorithms on the same data set and compare results
-2. **Exercise 2:** Find the optimal quantum for Round Robin
-3. **Exercise 3:** Create a scenario where FCFS performs better than SJF
-4. **Exercise 4:** Design a workload where MLFQ excels
-5. **Exercise 5:** Calculate metrics manually and verify against simulator
-
-## 🤝 Contributing
-
-Feel free to extend this simulator:
-- Add priority scheduling
-- Implement real-time scheduling (EDF, RM)
-- Add gantt chart export (PNG/PDF)
-- Create comparison mode (side-by-side)
-- Add CPU utilization metrics
-- Implement process arrival animation
-
-## 📄 License
-
-This project is open source and available for educational purposes.
-
-## 🎓 Author Notes
-
-This simulator was created as an educational tool for understanding CPU scheduling algorithms. It demonstrates:
-
-- Core OS scheduling concepts
-- Algorithm implementation
-- Performance metric calculation
-- Interactive visualization
+## 🎓 Educational Use
 
 Perfect for:
 - Operating Systems courses
@@ -465,18 +221,13 @@ Perfect for:
 - Algorithm comparison
 - Teaching demonstrations
 
-## 📞 Support
+## 📄 License
 
-For issues or questions:
-1. Check the troubleshooting section
-2. Review algorithm descriptions
-3. Examine sample scenarios
-4. Verify input data format
+This project is open source and available for educational purposes.
 
 ---
 
-**Version:** 1.0  
-**Last Updated:** 2026  
-**Technology:** Pure HTML/CSS/JavaScript (No dependencies)
+**Technology:** HTML, CSS, JavaScript (No dependencies)  
+**Author:** Sopheap Sothiphak
 
 **Happy Scheduling! 🚀**
