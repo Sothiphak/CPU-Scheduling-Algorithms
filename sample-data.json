@@ -1,0 +1,326 @@
+{
+  "scenarios": [
+    {
+      "name": "Basic Example",
+      "description": "Simple 4-process scenario for algorithm comparison",
+      "processes": [
+        {
+          "id": 1,
+          "arrival": 0,
+          "burst": 5,
+          "priority": 2
+        },
+        {
+          "id": 2,
+          "arrival": 1,
+          "burst": 3,
+          "priority": 1
+        },
+        {
+          "id": 3,
+          "arrival": 2,
+          "burst": 8,
+          "priority": 3
+        },
+        {
+          "id": 4,
+          "arrival": 3,
+          "burst": 6,
+          "priority": 2
+        }
+      ],
+      "quantum": 2
+    },
+    {
+      "name": "Convoy Effect Demonstration",
+      "description": "Shows the convoy effect problem in FCFS with one long process followed by many short ones",
+      "processes": [
+        {
+          "id": 1,
+          "arrival": 0,
+          "burst": 20,
+          "priority": 1
+        },
+        {
+          "id": 2,
+          "arrival": 1,
+          "burst": 3,
+          "priority": 2
+        },
+        {
+          "id": 3,
+          "arrival": 2,
+          "burst": 3,
+          "priority": 2
+        },
+        {
+          "id": 4,
+          "arrival": 3,
+          "burst": 3,
+          "priority": 2
+        },
+        {
+          "id": 5,
+          "arrival": 4,
+          "burst": 3,
+          "priority": 2
+        }
+      ],
+      "quantum": 2
+    },
+    {
+      "name": "I/O Bound vs CPU Bound",
+      "description": "Mix of short I/O-bound and long CPU-bound processes",
+      "processes": [
+        {
+          "id": 1,
+          "arrival": 0,
+          "burst": 10,
+          "priority": 3
+        },
+        {
+          "id": 2,
+          "arrival": 1,
+          "burst": 2,
+          "priority": 1
+        },
+        {
+          "id": 3,
+          "arrival": 2,
+          "burst": 1,
+          "priority": 1
+        },
+        {
+          "id": 4,
+          "arrival": 3,
+          "burst": 8,
+          "priority": 3
+        },
+        {
+          "id": 5,
+          "arrival": 4,
+          "burst": 2,
+          "priority": 1
+        },
+        {
+          "id": 6,
+          "arrival": 5,
+          "burst": 1,
+          "priority": 1
+        }
+      ],
+      "quantum": 2
+    },
+    {
+      "name": "Starvation Test",
+      "description": "Tests potential starvation with continuous short process arrivals",
+      "processes": [
+        {
+          "id": 1,
+          "arrival": 0,
+          "burst": 15,
+          "priority": 3
+        },
+        {
+          "id": 2,
+          "arrival": 2,
+          "burst": 1,
+          "priority": 1
+        },
+        {
+          "id": 3,
+          "arrival": 4,
+          "burst": 1,
+          "priority": 1
+        },
+        {
+          "id": 4,
+          "arrival": 6,
+          "burst": 1,
+          "priority": 1
+        },
+        {
+          "id": 5,
+          "arrival": 8,
+          "burst": 1,
+          "priority": 1
+        },
+        {
+          "id": 6,
+          "arrival": 10,
+          "burst": 1,
+          "priority": 1
+        }
+      ],
+      "quantum": 2
+    },
+    {
+      "name": "Equal Burst Times",
+      "description": "All processes with same burst time to test fairness",
+      "processes": [
+        {
+          "id": 1,
+          "arrival": 0,
+          "burst": 5,
+          "priority": 1
+        },
+        {
+          "id": 2,
+          "arrival": 1,
+          "burst": 5,
+          "priority": 2
+        },
+        {
+          "id": 3,
+          "arrival": 2,
+          "burst": 5,
+          "priority": 3
+        },
+        {
+          "id": 4,
+          "arrival": 3,
+          "burst": 5,
+          "priority": 1
+        },
+        {
+          "id": 5,
+          "arrival": 4,
+          "burst": 5,
+          "priority": 2
+        }
+      ],
+      "quantum": 2
+    },
+    {
+      "name": "Simultaneous Arrival",
+      "description": "All processes arrive at the same time",
+      "processes": [
+        {
+          "id": 1,
+          "arrival": 0,
+          "burst": 8,
+          "priority": 2
+        },
+        {
+          "id": 2,
+          "arrival": 0,
+          "burst": 4,
+          "priority": 1
+        },
+        {
+          "id": 3,
+          "arrival": 0,
+          "burst": 6,
+          "priority": 3
+        },
+        {
+          "id": 4,
+          "arrival": 0,
+          "burst": 3,
+          "priority": 1
+        },
+        {
+          "id": 5,
+          "arrival": 0,
+          "burst": 2,
+          "priority": 2
+        }
+      ],
+      "quantum": 3
+    },
+    {
+      "name": "Quantum Sensitivity Test",
+      "description": "Scenario to test different quantum values for Round Robin",
+      "processes": [
+        {
+          "id": 1,
+          "arrival": 0,
+          "burst": 12,
+          "priority": 1
+        },
+        {
+          "id": 2,
+          "arrival": 1,
+          "burst": 8,
+          "priority": 2
+        },
+        {
+          "id": 3,
+          "arrival": 2,
+          "burst": 10,
+          "priority": 1
+        },
+        {
+          "id": 4,
+          "arrival": 3,
+          "burst": 6,
+          "priority": 3
+        }
+      ],
+      "quantum_tests": [1, 2, 3, 4, 5, 10]
+    },
+    {
+      "name": "Real-World Web Server",
+      "description": "Simulates web server handling different types of requests",
+      "processes": [
+        {
+          "id": 1,
+          "arrival": 0,
+          "burst": 15,
+          "priority": 3,
+          "type": "Database query"
+        },
+        {
+          "id": 2,
+          "arrival": 1,
+          "burst": 2,
+          "priority": 1,
+          "type": "Static file"
+        },
+        {
+          "id": 3,
+          "arrival": 2,
+          "burst": 8,
+          "priority": 2,
+          "type": "API request"
+        },
+        {
+          "id": 4,
+          "arrival": 3,
+          "burst": 1,
+          "priority": 1,
+          "type": "Static file"
+        },
+        {
+          "id": 5,
+          "arrival": 4,
+          "burst": 12,
+          "priority": 3,
+          "type": "Report generation"
+        },
+        {
+          "id": 6,
+          "arrival": 5,
+          "burst": 3,
+          "priority": 2,
+          "type": "API request"
+        },
+        {
+          "id": 7,
+          "arrival": 6,
+          "burst": 1,
+          "priority": 1,
+          "type": "Health check"
+        }
+      ],
+      "quantum": 2
+    }
+  ],
+  "notes": {
+    "usage": "Copy process data from any scenario and paste into the simulator",
+    "arrival": "Time when process enters the system (in arbitrary time units)",
+    "burst": "CPU time required by the process",
+    "priority": "Optional - lower values = higher priority",
+    "quantum": "Time slice for Round Robin and MLFQ algorithms"
+  }
+}
