@@ -3,10 +3,10 @@
 ## 🚀 Get Started in 30 Seconds
 
 ### Step 1: Open the Simulator
-Double-click `cpu-scheduler.html` or open it in any web browser.
+Double-click `index.html` or open it in any web browser.
 
 ### Step 2: Load Sample Data
-Click the **"Load Sample Data"** button to populate 4 example processes.
+Click the **"Sample"** button to populate 4 example processes.
 
 ### Step 3: Run Simulation
 Click **"Run Simulation"** to see results with the default FCFS algorithm.
@@ -20,8 +20,10 @@ That's it! 🎉
 After running a simulation, you'll see:
 
 1. **Gantt Chart** - Visual timeline showing when each process runs
-2. **Metrics Table** - Detailed statistics for each process
-3. **Average Values** - Overall performance metrics
+   - Hover over blocks for detailed information
+   - Time ruler shows the timeline
+2. **Metrics Cards** - Average statistics at a glance
+3. **Detailed Table** - Complete data for each process
 
 ### Key Metrics Explained
 
@@ -48,12 +50,83 @@ Use the dropdown menu to select:
 2. **SJF** - Runs shortest jobs first
 3. **SRT** - Preemptive shortest remaining time
 4. **Round Robin** - Fair time slicing (set quantum)
-5. **MLFQ** - Multi-level adaptive queues
+5. **MLFQ** - Multi-level adaptive queues with aging
 
 ### Adjust Time Quantum
 For Round Robin and MLFQ:
 - Lower quantum (1-2): More responsive, more overhead
 - Higher quantum (4-10): Less overhead, approaches FCFS
+
+---
+
+## 🌓 Theme Options
+
+Click the **sun/moon** button in the top right of the sidebar to toggle between:
+- **Dark Mode** - Easy on the eyes, default
+- **Light Mode** - Better for bright environments
+
+---
+
+## 📥 Import Your Own Data
+
+### Import from File
+Click **"Import"** and select a JSON or CSV file.
+
+**JSON Format:**
+```json
+[
+    { "arrival": 0, "burst": 5 },
+    { "arrival": 2, "burst": 3 }
+]
+```
+
+**CSV Format:**
+```csv
+Arrival,Burst
+0,5
+2,3
+```
+
+---
+
+## ➕ Adding Custom Processes
+
+Enter values and click the **+** button:
+
+- **Arrival Time**: When process enters system (start at 0)
+- **Burst Time**: How long it needs CPU (must be > 0)
+
+### Example Process Set
+```
+Process 1: Arrival=0, Burst=5
+Process 2: Arrival=1, Burst=3
+Process 3: Arrival=2, Burst=8
+Process 4: Arrival=3, Burst=6
+```
+
+---
+
+## 🎨 Reading the Gantt Chart
+
+Each colored block represents a process running:
+- **Process ID** - Shown inside (P1, P2, etc.)
+- **Duration** - Badge showing time units (e.g., "5u")
+- **Time Markers** - Start/end times below blocks
+- **Hover** - Shows detailed tooltip
+
+### Time Ruler
+The ruler below the chart shows:
+- Tick marks at regular intervals
+- Current time scale
+
+---
+
+## 📤 Export Results
+
+After running a simulation:
+1. Click **"Export CSV"** button
+2. Save the file with all process metrics
+3. Open in Excel or any spreadsheet app
 
 ---
 
@@ -82,93 +155,17 @@ Compare FCFS vs SRT - see the difference!
 
 ---
 
-## ➕ Adding Custom Processes
-
-Click **"+ Add Process"** and enter:
-
-- **Arrival Time**: When process enters system (start at 0)
-- **Burst Time**: How long it needs CPU (must be > 0)
-- **Priority**: Optional, for future features
-
-### Example Process Set
-```
-Process 1: Arrival=0, Burst=5
-Process 2: Arrival=1, Burst=3
-Process 3: Arrival=2, Burst=8
-Process 4: Arrival=3, Burst=6
-```
-
----
-
-## 🎨 Reading the Gantt Chart
-
-Each colored block represents a process running:
-- **Width** = How long it ran
-- **Color** = Unique per process
-- **Label** = Process ID (P1, P2, etc.)
-- **Numbers** = Time points
-
-### Example
-```
-[P1][P2][P1][P3]
-0   2  5  7  15
-```
-This means:
-- P1 ran from 0→2 (2 units)
-- P2 ran from 2→5 (3 units)
-- P1 ran from 5→7 (2 units)
-- P3 ran from 7→15 (8 units)
-
----
-
-## 📖 Sample Scenarios
-
-### Scenario 1: Basic Test
-Good for first-time users
-```
-P1: Arrival=0, Burst=5
-P2: Arrival=1, Burst=3
-P3: Arrival=2, Burst=8
-P4: Arrival=3, Burst=6
-```
-
-### Scenario 2: Convoy Effect
-Shows FCFS weakness
-```
-P1: Arrival=0, Burst=20
-P2: Arrival=1, Burst=3
-P3: Arrival=2, Burst=3
-P4: Arrival=3, Burst=3
-```
-
-### Scenario 3: Mixed Workload
-I/O vs CPU bound processes
-```
-P1: Arrival=0, Burst=10
-P2: Arrival=1, Burst=2
-P3: Arrival=2, Burst=1
-P4: Arrival=3, Burst=8
-P5: Arrival=4, Burst=2
-```
-
----
-
 ## ❓ Troubleshooting
 
 **Problem: Results not showing**
 - Make sure you have at least 1 process
 - Check that burst times are greater than 0
-- Try clicking "Clear" then re-run
+- Try clicking "Clear All" then re-add processes
 
 **Problem: Unexpected results**  
 - Verify arrival times are correct
 - Check burst times are positive
 - Try sample data to confirm simulator works
-
-**Problem: Gantt chart looks wrong**
-- Clear browser cache
-- Refresh the page
-- Try a different browser
 
 ---
 
@@ -190,29 +187,6 @@ After mastering the basics:
 2. Study **COMPARISON-REPORT.md** for algorithm analysis
 3. Try scenarios from **sample-data.json**
 4. Experiment with your own process sets
-5. Compare results with operating systems theory
-
----
-
-## 💡 Tips for Best Learning
-
-**For Students:**
-- Run each algorithm on the same data
-- Calculate metrics manually to verify
-- Create worst-case scenarios
-- Compare with textbook examples
-
-**For Teachers:**
-- Use for live demonstrations
-- Assign comparison exercises
-- Show convoy effect visually
-- Discuss trade-offs
-
-**For Enthusiasts:**
-- Modify the code to add features
-- Test with real-world workloads
-- Compare with actual OS behavior
-- Build understanding of OS internals
 
 ---
 
@@ -228,30 +202,8 @@ A: When processes arrive in shortest-burst order, they perform identically.
 A: Start with 2-4. Too small = overhead, too large = unfair.
 
 **Q: Can processes starve?**
-A: SJF and SRT can starve long processes. FCFS, RR, and MLFQ cannot.
-
-**Q: How realistic is this simulator?**
-A: Very! These algorithms are used in real operating systems. The simulator accurately implements their core logic.
-
----
-
-## 🚀 Challenge Yourself
-
-### Challenge 1: Perfect Score
-Create a scenario where all algorithms produce identical results.
-
-### Challenge 2: Maximum Difference
-Create a scenario where FCFS and SRT differ by the most.
-
-### Challenge 3: Fairness Test
-Which algorithm treats all processes most fairly? Design a test!
-
-### Challenge 4: Real-World Simulation
-Model a web server handling different request types.
+A: SJF and SRT can starve long processes. FCFS, RR, and MLFQ (with aging) cannot.
 
 ---
 
 **Happy Learning! 🎓**
-
-For detailed information, see the full README.md
-For algorithm analysis, see COMPARISON-REPORT.md
