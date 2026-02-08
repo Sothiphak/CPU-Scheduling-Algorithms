@@ -1,5 +1,16 @@
 # CPU Scheduling Algorithms: Comprehensive Comparison Report
 
+**Course:** Operating System  
+**Lecturer:** Heng Rathpisey  
+
+**Group Members:**
+1. SOPHAT ODOM          ID: e20221559
+2. THY PHAROTH          ID: e20220886
+3. SOPHEAP SOTHIPHAK    ID: e20221038
+4. RA SOCHEATEY         ID: e20221446
+
+---
+
 ## Executive Summary
 
 This report provides an in-depth analysis of five CPU scheduling algorithms implemented in the simulator: FCFS, SJF, SRT, Round Robin, and Multilevel Feedback Queue. The analysis includes theoretical foundations, empirical results from test scenarios, and practical recommendations for different use cases.
@@ -690,7 +701,7 @@ Understanding these algorithms teaches:
 
 ---
 
-## 9. Automated Comparison Tools 🛠️
+## 9. Automated Comparison Tools 
 
 This simulator now includes a built-in **Comparison Dashboard** to facilitate real-time analysis.
 
@@ -758,29 +769,4 @@ Average RT = Σ(Response Times) / n
 ```
 
 ---
-
-## Appendix B: Testing Checklist
-
-Use this checklist when evaluating a scheduling algorithm:
-
-- [ ] Test with convoy effect scenario
-- [ ] Test with equal burst times
-- [ ] Test with simultaneous arrivals
-- [ ] Test with I/O vs CPU-bound mix
-- [ ] Test starvation scenarios
-- [ ] Test various quantum sizes (RR/MLFQ)
-- [ ] Calculate all three metrics (WT, TAT, RT)
-- [ ] Count context switches
-- [ ] Verify no starvation
-- [ ] Check fairness
-- [ ] Compare against other algorithms
-- [ ] Test edge cases (single process, no arrivals)
-- [ ] Verify correctness of timeline
-- [ ] Validate metric calculations
-
----
-
-**Report Version:** 1.0  
-**Date:** February 2026  
-**Simulator Version:** 1.0
 

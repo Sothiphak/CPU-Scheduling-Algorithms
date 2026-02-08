@@ -245,6 +245,3 @@ This project is open source and available for educational purposes.
 ---
 
 **Technology:** HTML, CSS, JavaScript (No dependencies)  
-**Author:** Sopheap Sothiphak
-
-**Happy Scheduling! 🚀**

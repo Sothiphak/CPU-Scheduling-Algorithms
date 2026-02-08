@@ -156,15 +156,84 @@ function renderProcessList() {
     });
 }
 
+const sampleScenarios = [
+    {
+        name: "Teacher's Example",
+        data: [
+            { id: 1, arrival: 0, burst: 5 },
+            { id: 2, arrival: 1, burst: 3 },
+            { id: 3, arrival: 2, burst: 8 },
+            { id: 4, arrival: 3, burst: 6 }
+        ]
+    },
+    {
+        name: "Short Tasks (SJF Demo)",
+        data: [
+            { id: 1, arrival: 0, burst: 2 },
+            { id: 2, arrival: 2, burst: 1 },
+            { id: 3, arrival: 4, burst: 3 },
+            { id: 4, arrival: 5, burst: 2 },
+            { id: 5, arrival: 7, burst: 1 }
+        ]
+    },
+    {
+        name: "Long Bursts (FCFS vs RR)",
+        data: [
+            { id: 1, arrival: 0, burst: 20 },
+            { id: 2, arrival: 1, burst: 4 },
+            { id: 3, arrival: 2, burst: 2 },
+            { id: 4, arrival: 3, burst: 3 }
+        ]
+    },
+    {
+        name: "Arrival Pattern",
+        data: [
+            { id: 1, arrival: 0, burst: 6 },
+            { id: 2, arrival: 5, burst: 4 },
+            { id: 3, arrival: 10, burst: 8 },
+            { id: 4, arrival: 15, burst: 3 }
+        ]
+    }
+];
+
 function loadSampleData() {
-    processes = [
-        { id: 1, arrival: 0, burst: 5 },
-        { id: 2, arrival: 1, burst: 3 },
-        { id: 3, arrival: 2, burst: 8 },
-        { id: 4, arrival: 3, burst: 6 }
-    ];
-    nextId = 5;
+    // Pick a random scenario
+    const randomIndex = Math.floor(Math.random() * sampleScenarios.length);
+    const scenario = sampleScenarios[randomIndex];
+    
+    // Clone data to avoid reference issues
+    processes = JSON.parse(JSON.stringify(scenario.data));
+    nextId = processes.length + 1;
+    
+    // showToast(`Loaded: ${scenario.name}`);
     renderProcessList();
+}
+
+function showToast(message) {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300); // Wait for transition
+    }, 3000);
 }
 
 // File I/O
