@@ -17,6 +17,11 @@ A comprehensive web-based simulator for visualizing and comparing different CPU 
   - Time ruler with tick marks
   - Real-time metrics calculation
 
+- **New Advanced Features: 🌟**
+  - **Algorithm Comparison Dashboard:** Run all algorithms simultaneously and compare results instantly.
+  - **Step-by-Step Animation:** Control the simulation speed and step through process execution.
+  - **Live Metrics:** Real-time updates of Waiting Time, Turnaround Time, and Response Time.
+
 - **Comprehensive Metrics:**
   - Waiting Time
   - Turnaround Time
@@ -113,6 +118,18 @@ For Round Robin and MLFQ:
   - Time ruler below
 - Analyze the metrics cards and detailed table
 - Export results to CSV if needed
+
+### 5. Compare Algorithms 📊
+- Click the **Comparison (Chart Icon)** button next to "Run Simulation".
+- View a side-by-side comparison of all 5 algorithms on your current dataset.
+- The system highlights the "Winner" based on Average Waiting Time.
+
+### 6. Control Animation 🎬
+- Use the controls in the "Execution Timeline" header:
+  - **Reset (⏮):** Clear the timeline.
+  - **Play/Pause (▶/⏸):** Auto-play the visualization.
+  - **Step (⏭):** Advance one time unit at a time.
+
 
 ## 🧮 Algorithm Descriptions
 

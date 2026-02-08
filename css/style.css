@@ -505,7 +505,7 @@ main {
 .gantt-chart {
     background: var(--bg-tertiary);
     border-radius: var(--radius-lg);
-    padding: 1.25rem;
+    padding: 3.5rem 1.25rem 1.25rem 1.25rem; /* Space for tooltips */
     min-width: fit-content;
 }
 
@@ -517,8 +517,10 @@ main {
     display: flex;
     min-height: 70px;
     border-radius: var(--radius);
-    overflow: hidden;
+    /* overflow: hidden; Removed for tooltips */
     box-shadow: var(--shadow);
+    position: relative;
+    width: 100%;
 }
 
 .gantt-block {
@@ -535,8 +537,15 @@ main {
     border-right: 1px solid rgba(255,255,255,0.15);
 }
 
+.gantt-block:first-child {
+    border-top-left-radius: var(--radius);
+    border-bottom-left-radius: var(--radius);
+}
+
 .gantt-block:last-child {
     border-right: none;
+    border-top-right-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
 }
 
 .gantt-block:hover {
@@ -562,65 +571,81 @@ main {
     margin-top: 0.25rem;
 }
 
-.gantt-time-start,
-.gantt-time-end {
-    position: absolute;
-    bottom: -20px;
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    background: var(--bg-tertiary);
-    padding: 0.125rem 0.25rem;
-    border-radius: 3px;
+/* Time Markers Row */
+.gantt-time-markers {
+    display: flex;
+    margin-top: 0.75rem;
+    position: relative;
+    height: 28px;
+    padding-top: 4px;
 }
 
-.gantt-time-start {
+.gantt-marker-group {
+    position: relative;
+    height: 100%;
+    border-left: 2px solid var(--accent);
+}
+
+.gantt-marker-group:last-child {
+    border-right: 2px solid var(--accent);
+}
+
+.gantt-marker-start,
+.gantt-marker-end {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    background: var(--accent);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    z-index: 5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.gantt-marker-start {
     left: 0;
     transform: translateX(-50%);
 }
 
-.gantt-time-end {
+.gantt-marker-end {
     right: 0;
     transform: translateX(50%);
-    display: none;
 }
 
-.gantt-block:last-child .gantt-time-end {
-    display: block;
-}
-
-/* Tooltip */
+/* Tooltip - Clean & Visible */
 .gantt-block[data-tooltip]:hover::before {
     content: attr(data-tooltip);
     position: absolute;
-    top: -65px;
+    bottom: 100%;
     left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
+    transform: translateX(-50%) translateY(-12px);
+    background: #1e293b;
+    color: #fff;
     padding: 0.5rem 0.75rem;
-    border-radius: var(--radius);
+    border-radius: 6px;
     font-size: 0.75rem;
-    font-weight: 500;
-    white-space: pre-line;
-    text-shadow: none;
+    font-weight: 600;
+    white-space: nowrap;
     z-index: 100;
-    box-shadow: var(--shadow-lg);
-    min-width: 120px;
-    text-align: left;
-    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    pointer-events: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    letter-spacing: 0.02em;
 }
 
 .gantt-block[data-tooltip]:hover::after {
     content: '';
     position: absolute;
-    top: -12px;
+    bottom: 100%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(-6px);
     border: 6px solid transparent;
-    border-top-color: var(--border);
-    z-index: 101;
+    border-top-color: #1e293b;
+    z-index: 100;
+    pointer-events: none;
 }
 
 /* Time Ruler */
@@ -678,6 +703,246 @@ main {
     gap: 1rem;
     transition: all 0.3s ease;
 }
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon-wait {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.stat-icon-turn {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.stat-icon-resp {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+/* Run buttons container */
+.run-buttons {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+#runBtn {
+    flex: 1;
+}
+
+#compareBtn {
+    width: 48px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal System */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal {
+    background: var(--bg-secondary);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay:not(.hidden) .modal {
+    transform: translateY(0);
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.close-modal-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    transition: all 0.2s;
+}
+
+.close-modal-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+/* Comparison Grid */
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.algo-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s;
+}
+
+.algo-card.winner {
+    border-color: var(--accent);
+    background: rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.algo-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.algo-metric {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.algo-value {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.comparison-summary {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius);
+    padding: 1rem;
+    border-left: 4px solid var(--accent);
+}
+
+.comparison-summary h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.comparison-summary p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Animation Controls */
+.animation-controls {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    margin-left: 1.5rem;
+    margin-right: auto; /* Push badge to right */
+    background: var(--bg-tertiary);
+    padding: 0.25rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.animation-controls button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.animation-controls button:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.animation-controls button:active {
+    transform: scale(0.95);
+}
+
+/* Hidden block for animation */
+.gantt-block.anim-hidden {
+    width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    opacity: 0;
+    border: none;
+    margin: 0;
+}
+
+/* Smooth transition for animation */
+.gantt-block {
+    transition: width 0.3s ease, opacity 0.3s ease, transform 0.2s;
+}
+
+
 
 .stat-icon {
     width: 44px;

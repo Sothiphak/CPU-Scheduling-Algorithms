@@ -28,13 +28,30 @@ const els = {
     avgResponse: document.getElementById('avgResponse'),
     totalTimeDisplay: document.getElementById('totalTimeDisplay'),
     exportBtn: document.getElementById('exportBtn'),
-    themeToggle: document.getElementById('themeToggle')
+    themeToggle: document.getElementById('themeToggle'),
+    compareBtn: document.getElementById('compareBtn'),
+    comparisonModal: document.getElementById('comparisonModal'),
+    closeModalBtn: document.getElementById('closeModalBtn'),
+    comparisonGrid: document.getElementById('comparisonGrid'),
+    comparisonSummary: document.getElementById('comparisonSummary'),
+    animResetBtn: document.getElementById('animResetBtn'),
+    animPlayBtn: document.getElementById('animPlayBtn'),
+    animStepBtn: document.getElementById('animStepBtn')
+};
+
+// Animation State
+let animState = {
+    timer: null,
+    isPlaying: false,
+    currentIndex: 0,
+    totalBlocks: 0
 };
 
 // Initialization
 function init() {
     loadSampleData();
     setupEventListeners();
+    updateAnimationUI();
 }
 
 function setupEventListeners() {
@@ -79,6 +96,18 @@ function setupEventListeners() {
             els.quantumInput.classList.add('hidden');
         }
     });
+
+    // Comparison Dashboard
+    els.compareBtn.addEventListener('click', compareAlgorithms);
+    els.closeModalBtn.addEventListener('click', closeComparisonModal);
+    els.comparisonModal.addEventListener('click', (e) => {
+        if (e.target === els.comparisonModal) closeComparisonModal();
+    });
+
+    // Animation Controls
+    els.animResetBtn.addEventListener('click', resetAnimation);
+    els.animPlayBtn.addEventListener('click', toggleAnimation);
+    els.animStepBtn.addEventListener('click', stepAnimation);
 }
 
 // Process Management
@@ -220,6 +249,8 @@ function runSimulation() {
         alert('Add some processes first!');
         return;
     }
+    
+    stopAnimation(); // Stop any running animation
 
     const algo = els.algoSelect.value;
     const quantum = parseInt(els.quantum.value) || 2;
@@ -279,6 +310,11 @@ function renderGantt(timeline) {
         el.className = `gantt-block c-${item.colorIndex}`;
         const widthPercent = (item.duration / finalTime) * 100;
         el.style.width = `${widthPercent}%`;
+        el.style.left = `${(item.start / finalTime) * 100}%`;
+        el.style.position = 'absolute'; // Use absolute positioning for accuracy
+        
+        // Tooltip
+        el.setAttribute('data-tooltip', `Duration: ${item.duration}`);
         
         // Block content with process ID and duration
         el.innerHTML = `
@@ -286,35 +322,47 @@ function renderGantt(timeline) {
             <span class="gantt-duration">${item.duration}u</span>
         `;
         
-        // Tooltip with detailed info
-        el.setAttribute('data-tooltip', `Process ${item.process}\nStart: ${item.start}\nEnd: ${item.start + item.duration}\nDuration: ${item.duration}`);
-        
-        // Time markers
-        const startMarker = document.createElement('span');
-        startMarker.className = 'gantt-time-start';
-        startMarker.textContent = item.start;
-        el.appendChild(startMarker);
-        
-        // End marker for all blocks
-        const endMarker = document.createElement('span');
-        endMarker.className = 'gantt-time-end';
-        endMarker.textContent = item.start + item.duration;
-        el.appendChild(endMarker);
-        
         blocksContainer.appendChild(el);
     });
     
     ganttInner.appendChild(blocksContainer);
     
-    // Create time ruler
+    // Create detailed time markers row
+    const timeMarkers = document.createElement('div');
+    timeMarkers.className = 'gantt-time-markers';
+    
+    timeline.forEach((item, index) => {
+        const markerGroup = document.createElement('div');
+        markerGroup.className = 'gantt-marker-group';
+        const widthPercent = (item.duration / finalTime) * 100;
+        markerGroup.style.width = `${widthPercent}%`;
+        
+        const startMarker = document.createElement('span');
+        startMarker.className = 'gantt-marker-start';
+        startMarker.textContent = item.start;
+        markerGroup.appendChild(startMarker);
+        
+        // Show end marker on last block
+        if (index === timeline.length - 1) {
+            const endMarker = document.createElement('span');
+            endMarker.className = 'gantt-marker-end';
+            endMarker.textContent = item.start + item.duration;
+            markerGroup.appendChild(endMarker);
+        }
+        
+        timeMarkers.appendChild(markerGroup);
+    });
+    
+    ganttInner.appendChild(timeMarkers);
+    
+    // Create time ruler with every unit
     const ruler = document.createElement('div');
     ruler.className = 'gantt-ruler';
     
-    // Determine tick interval based on total time
+    // Always show every unit for clarity (up to 30), then switch to every 2 units
     let tickInterval = 1;
-    if (finalTime > 50) tickInterval = 10;
-    else if (finalTime > 20) tickInterval = 5;
-    else if (finalTime > 10) tickInterval = 2;
+    if (finalTime > 50) tickInterval = 5;
+    else if (finalTime > 30) tickInterval = 2;
     
     for (let t = 0; t <= finalTime; t += tickInterval) {
         const tick = document.createElement('div');
@@ -331,6 +379,10 @@ function renderGantt(timeline) {
     
     ganttInner.appendChild(ruler);
     els.ganttChart.appendChild(ganttInner);
+    
+    // Update Animation State
+    animState.totalBlocks = timeline.length;
+    animState.currentIndex = timeline.length;
 }
 
 function renderResultsTable(procs) {
@@ -361,3 +413,160 @@ function resetResults() {
 
 // Start
 init();
+
+// Comparison Logic
+function compareAlgorithms() {
+    if (processes.length === 0) {
+        alert('Add some processes first!');
+        return;
+    }
+
+    const quantum = parseInt(els.quantum.value) || 2;
+    const algos = [
+        { id: 'fcfs', name: 'First Come First Serve', func: window.Algorithm.fcfs },
+        { id: 'sjf', name: 'Shortest Job First', func: window.Algorithm.sjf },
+        { id: 'srt', name: 'Shortest Remaining Time', func: window.Algorithm.srt },
+        { id: 'rr', name: 'Round Robin (Q=' + quantum + ')', func: (p) => window.Algorithm.rr(p, quantum) },
+        { id: 'mlfq', name: 'Multi-Level Feedback Queue', func: window.Algorithm.mlfq }
+    ];
+
+    const results = algos.map(algo => {
+        // Deep copy processes to avoid mutation issues between runs if any reside in objects
+        const procCopy = JSON.parse(JSON.stringify(processes));
+        const res = algo.func(procCopy);
+        
+        const totalWait = res.processes.reduce((sum, p) => sum + p.waitingTime, 0);
+        const totalTurn = res.processes.reduce((sum, p) => sum + p.turnaroundTime, 0);
+        const count = res.processes.length;
+
+        return {
+            name: algo.name,
+            avgWait: (totalWait / count).toFixed(2),
+            avgTurn: (totalTurn / count).toFixed(2)
+        };
+    });
+
+    renderComparison(results);
+    openComparisonModal();
+}
+
+function renderComparison(results) {
+    els.comparisonGrid.innerHTML = '';
+    
+    // Find winner (lowest avg wait time)
+    let minWait = Infinity;
+    let winnerIndex = -1;
+    
+    results.forEach((r, i) => {
+        const wait = parseFloat(r.avgWait);
+        if (wait < minWait) {
+            minWait = wait;
+            winnerIndex = i;
+        }
+    });
+
+    results.forEach((r, i) => {
+        const isWinner = i === winnerIndex;
+        const card = document.createElement('div');
+        card.className = `algo-card ${isWinner ? 'winner' : ''}`;
+        
+        card.innerHTML = `
+            <div class="algo-name">${r.name}</div>
+            <div class="algo-metric">
+                <span>Avg Waiting Time:</span>
+                <span class="algo-value">${r.avgWait}</span>
+            </div>
+            <div class="algo-metric">
+                <span>Avg Turnaround:</span>
+                <span class="algo-value">${r.avgTurn}</span>
+            </div>
+        `;
+        els.comparisonGrid.appendChild(card);
+    });
+
+    const winner = results[winnerIndex];
+    els.comparisonSummary.innerHTML = `
+        <h4>🏆 Recommendation</h4>
+        <p>Based on the current workload, <strong>${winner.name}</strong> is the most efficient algorithm with the lowest average waiting time of <strong>${winner.avgWait}</strong> units.</p>
+    `;
+}
+
+function openComparisonModal() {
+    els.comparisonModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closeComparisonModal() {
+    els.comparisonModal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+// Animation System
+function resetAnimation() {
+    stopAnimation();
+    const blocks = document.querySelectorAll('.gantt-block');
+    blocks.forEach(b => b.classList.add('anim-hidden'));
+    
+    const markers = document.querySelectorAll('.gantt-marker-group');
+    markers.forEach(m => m.style.opacity = '0');
+    
+    animState.currentIndex = 0;
+    animState.totalBlocks = blocks.length;
+}
+
+function stopAnimation() {
+    if (animState.timer) clearInterval(animState.timer);
+    animState.timer = null;
+    animState.isPlaying = false;
+    updateAnimationUI();
+}
+
+function toggleAnimation() {
+    if (animState.isPlaying) {
+        stopAnimation();
+    } else {
+        const blocks = document.querySelectorAll('.gantt-block');
+        // If we are at the end, reset first
+        if (animState.currentIndex >= blocks.length) {
+            resetAnimation();
+        }
+        
+        animState.isPlaying = true;
+        updateAnimationUI();
+        
+        animState.timer = setInterval(() => {
+            const finished = stepAnimation();
+            if (finished) stopAnimation();
+        }, 500); // 500ms per step
+    }
+}
+
+function stepAnimation() {
+    const blocks = document.querySelectorAll('.gantt-block');
+    const markers = document.querySelectorAll('.gantt-marker-group');
+    
+    // If getting started and no blocks are hidden, it implies we need to reset first
+    // Check if at least one block is visible? No, assume state is correct.
+    // Actually, if user clicks Step on a full chart, we should properly reset.
+    // But for now let's assume user hits Reset first or we handle start.
+    
+    if (animState.currentIndex >= blocks.length) return true; // Finished
+    
+    const block = blocks[animState.currentIndex];
+    if (block) block.classList.remove('anim-hidden');
+    
+    const marker = markers[animState.currentIndex];
+    if (marker) marker.style.opacity = '1';
+    
+    animState.currentIndex++;
+    
+    return animState.currentIndex >= blocks.length;
+}
+
+function updateAnimationUI() {
+    if (animState.isPlaying) {
+        els.animPlayBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+    } else {
+        els.animPlayBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+    }
+}

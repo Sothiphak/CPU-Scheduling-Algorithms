@@ -151,7 +151,19 @@ P2: Arrival=1, Burst=3
 P3: Arrival=2, Burst=3
 P4: Arrival=3, Burst=3
 ```
-Compare FCFS vs SRT - see the difference!
+4. Compare FCFS vs SRT - see the difference!
+
+### Experiment 4: The Ultimate Showdown 🏆
+1. Load "Sample" data.
+2. Click the **Comparison Chart** icon (next to Run).
+3. Instantly see which algorithm wins for Waiting Time.
+4. Note how SRT often wins, but check the Context Switches!
+
+### Experiment 5: Visualize Execution ⏯️
+1. Click **Reset** in the timeline header.
+2. Click **Step (⏭)** repeatedly to see decisions made tick-by-tick.
+3. Or click **Play (▶)** to watch the OS schedule processes in real-time.
+
 
 ---
 

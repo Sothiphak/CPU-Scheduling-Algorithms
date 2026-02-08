@@ -146,12 +146,21 @@
                         Sample
                     </button>
                 </div>
-                <button id="runBtn" class="btn btn-primary btn-run">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                    Run Simulation
-                </button>
+                <div class="run-buttons">
+                    <button id="runBtn" class="btn btn-primary btn-run">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        Run Simulation
+                    </button>
+                    <button id="compareBtn" class="btn btn-accent btn-run" title="Compare All Algorithms">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </aside>
 
@@ -180,6 +189,17 @@
                             </svg>
                             Execution Timeline
                         </h3>
+                        <div class="animation-controls">
+                            <button id="animResetBtn" class="btn-icon-sm" title="Reset">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19l-9-7 9-7v14z"></path><line x1="22" y1="19" x2="22" y2="5"></line></svg>
+                            </button>
+                            <button id="animPlayBtn" class="btn-icon-sm" title="Play/Pause">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            </button>
+                            <button id="animStepBtn" class="btn-icon-sm" title="Step Forward">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                            </button>
+                        </div>
                         <span id="totalTimeDisplay" class="badge">Total: 0 units</span>
                     </div>
                     <div class="gantt-container">
@@ -250,14 +270,14 @@
                         <table class="results-table">
                             <thead>
                                 <tr>
-                                    <th>PID</th>
+                                    <th>Process ID</th>
                                     <th>Arrival</th>
                                     <th>Burst</th>
-                                    <th>Start</th>
-                                    <th>Finish</th>
-                                    <th>Waiting</th>
-                                    <th>Turnaround</th>
-                                    <th>Response</th>
+                                    <th>Start Time</th>
+                                    <th>Completion Time</th>
+                                    <th>Waiting Time</th>
+                                    <th>Turnaround Time</th>
+                                    <th>Response Time</th>
                                 </tr>
                             </thead>
                             <tbody id="resultsBody"></tbody>
@@ -266,6 +286,29 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div id="comparisonModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Algorithm Comparison</h3>
+                <button id="closeModalBtn" class="close-modal-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="comparison-grid" id="comparisonGrid">
+                    <!-- Populated by JS -->
+                </div>
+                <div class="comparison-summary" id="comparisonSummary">
+                    <!-- Winner announcement -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="js/algorithm.js"></script>

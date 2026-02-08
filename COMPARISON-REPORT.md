@@ -690,6 +690,25 @@ Understanding these algorithms teaches:
 
 ---
 
+## 9. Automated Comparison Tools 🛠️
+
+This simulator now includes a built-in **Comparison Dashboard** to facilitate real-time analysis.
+
+### 9.1 Features
+- **Concurrent Execution:** Runs all 5 algorithms on the exact same dataset.
+- **Unified Metrics:** Calculates AWT, ATAT, and ART for each algorithm side-by-side.
+- **Winner Highlighting:** Automatically identifies the most efficient algorithm for the current workload.
+
+### 9.2 Usage
+Instead of manually running each algorithm and recording stats:
+1. Load your dataset.
+2. Click the **Comparison Chart** icon.
+3. View the modal window with sorted results.
+
+This tool is particularly useful for verifying the theoretical behaviors discussed in Section 3, allowing students and researchers to quickly test hypotheses against random or custom datasets.
+
+---
+
 ## 8. References
 
 1. Silberschatz, A., Galvin, P. B., & Gagne, G. (2018). *Operating System Concepts* (10th ed.)
