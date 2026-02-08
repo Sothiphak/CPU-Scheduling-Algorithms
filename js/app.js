@@ -90,10 +90,42 @@ function setupEventListeners() {
     // UI Toggles
     els.algoSelect.addEventListener('change', (e) => {
         const val = e.target.value;
-        if (val === 'rr' || val === 'mlfq') {
-            els.quantumInput.classList.remove('hidden');
+        const qContainer = document.getElementById('quantumInputContainer');
+        const qGrid = document.getElementById('quantumInputs');
+        
+        if (val === 'rr') {
+            qContainer.classList.remove('hidden');
+            qGrid.innerHTML = `
+                <div class="q-input-wrapper">
+                    <label>Quantum</label>
+                    <input type="number" id="quantum" value="2" min="1">
+                </div>`;
+            els.quantum = document.getElementById('quantum'); 
+        } else if (val === 'mlfq') {
+            qContainer.classList.remove('hidden');
+            qGrid.innerHTML = `
+                <div class="q-input-wrapper">
+                    <label>Q1 (High)</label>
+                    <input type="number" id="q1" value="2" min="1">
+                </div>
+                <div class="q-input-wrapper">
+                    <label>Q2 (Med)</label>
+                    <input type="number" id="q2" value="4" min="1">
+                </div>
+                <div class="q-input-wrapper">
+                    <label>Q3 (Low)</label>
+                    <input type="text" id="q3" value="FCFS" disabled>
+                </div>
+            `;
         } else {
-            els.quantumInput.classList.add('hidden');
+            qContainer.classList.add('hidden');
+        }
+        
+        // Hide MLFQ Viz if not MLFQ
+        if (val !== 'mlfq') {
+            document.getElementById('mlfqViz').classList.add('hidden');
+        } else {
+            // Keep it hidden until run, but ensure inputs are shown
         }
     });
 
@@ -112,11 +144,16 @@ function setupEventListeners() {
 
 // Process Management
 function addProcess(arrival, burst) {
+    // ID is always length + 1 because we re-index on removal
+    const newId = processes.length + 1;
+
     processes.push({
-        id: nextId++,
+        id: newId,
         arrival: parseInt(arrival),
         burst: parseInt(burst)
     });
+    
+    nextId = newId + 1;
     renderProcessList();
 }
 
@@ -135,8 +172,15 @@ function addProcessFromInput() {
     els.newArr.focus();
 }
 
+// Process Management
 function removeProcess(id) {
     processes = processes.filter(p => p.id !== id);
+    // Re-index IDs to be sequential
+    processes.forEach((p, index) => {
+        p.id = index + 1;
+    });
+    // Reset nextId based on new length
+    nextId = processes.length + 1;
     renderProcessList();
 }
 
@@ -203,7 +247,8 @@ function loadSampleData() {
     
     // Clone data to avoid reference issues
     processes = JSON.parse(JSON.stringify(scenario.data));
-    nextId = processes.length + 1;
+    // Ensure nextId is always higher than any existing ID
+    nextId = (processes.length > 0) ? Math.max(...processes.map(p => p.id)) + 1 : 1;
     
     // showToast(`Loaded: ${scenario.name}`);
     renderProcessList();
@@ -275,11 +320,14 @@ function handleFileUpload(e) {
 
             if (newProcs.length > 0) {
                 processes = []; 
-                nextId = 1;
-                newProcs.forEach(p => {
-                    p.id = nextId++;
+                // Reset IDs based on import order but ensure nextId follows suit
+                let maxId = 0;
+                newProcs.forEach((p, index) => {
+                    p.id = index + 1;
+                    maxId = p.id;
                     processes.push(p);
                 });
+                nextId = maxId + 1;
                 renderProcessList();
             } else {
                 alert('No valid processes found.');
@@ -322,7 +370,19 @@ function runSimulation() {
     stopAnimation(); // Stop any running animation
 
     const algo = els.algoSelect.value;
-    const quantum = parseInt(els.quantum.value) || 2;
+    // Default single quantum
+    let quantum = 2;
+    // MLFQ quantums
+    let mlfQuantums = [2, 4, Infinity];
+
+    if (algo === 'rr') {
+        const qInput = document.getElementById('quantum');
+        if (qInput) quantum = parseInt(qInput.value) || 2;
+    } else if (algo === 'mlfq') {
+        const q1 = parseInt(document.getElementById('q1')?.value) || 2;
+        const q2 = parseInt(document.getElementById('q2')?.value) || 4;
+        mlfQuantums = [q1, q2, Infinity];
+    }
     let result = null;
 
     // Use window.Algorithm
@@ -331,7 +391,7 @@ function runSimulation() {
         case 'sjf': result = window.Algorithm.sjf(processes); break;
         case 'srt': result = window.Algorithm.srt(processes); break;
         case 'rr': result = window.Algorithm.rr(processes, quantum); break;
-        case 'mlfq': result = window.Algorithm.mlfq(processes); break;
+        case 'mlfq': result = window.Algorithm.mlfq(processes, mlfQuantums); break;
     }
 
     lastResults = result;
@@ -354,6 +414,13 @@ function renderResults(res) {
 
     // Timeline Rendering
     renderGantt(res.timeline);
+
+    // Initial MLFQ Viz immediately
+    if (res.snapshots && res.snapshots.length > 0) {
+        renderMLFQSnapshot(res.snapshots[0]);
+    } else {
+        document.getElementById('mlfqViz').classList.add('hidden');
+    }
 
     // Table Rendering
     renderResultsTable(res.processes);
@@ -404,7 +471,11 @@ function renderGantt(timeline) {
         const markerGroup = document.createElement('div');
         markerGroup.className = 'gantt-marker-group';
         const widthPercent = (item.duration / finalTime) * 100;
+        const leftPercent = (item.start / finalTime) * 100;
+        
         markerGroup.style.width = `${widthPercent}%`;
+        markerGroup.style.left = `${leftPercent}%`;
+        markerGroup.style.position = 'absolute';
         
         const startMarker = document.createElement('span');
         startMarker.className = 'gantt-marker-start';
@@ -581,6 +652,10 @@ function resetAnimation() {
     
     animState.currentIndex = 0;
     animState.totalBlocks = blocks.length;
+    
+    // Clear MLFQ Viz
+    document.querySelectorAll('.queue-content').forEach(el => el.innerHTML = '');
+    document.getElementById('mlfqViz').classList.add('hidden');
 }
 
 function stopAnimation() {
@@ -605,6 +680,22 @@ function toggleAnimation() {
         
         animState.timer = setInterval(() => {
             const finished = stepAnimation();
+            
+            // Sync MLFQ Viz
+            if (lastResults && lastResults.snapshots) {
+                // timeline item has snapshotIndex
+                const block = document.querySelectorAll('.gantt-block')[animState.currentIndex - 1];
+                if (block) {
+                    // We need to find which snapshot corresponds to this step
+                    // In stepAnimation, currentIndex is incremented. So -1 gives the one just shown.
+                    // But wait, the timeline item has the data.
+                    const timelineItem = lastResults.timeline[animState.currentIndex - 1];
+                    if (timelineItem && timelineItem.snapshotIndex !== undefined) {
+                        renderMLFQSnapshot(lastResults.snapshots[timelineItem.snapshotIndex]);
+                    }
+                }
+            }
+            
             if (finished) stopAnimation();
         }, 500); // 500ms per step
     }
@@ -629,6 +720,20 @@ function stepAnimation() {
     
     animState.currentIndex++;
     
+    // Sync MLFQ Viz for STEP
+    if (lastResults && lastResults.snapshots) {
+        // We just incremented, so the block we just showed is at currentIndex - 1
+        const timelineItem = lastResults.timeline[animState.currentIndex - 1];
+        if (timelineItem && timelineItem.snapshotIndex !== undefined) {
+             // We want to show the state AFTER this step? 
+             // Or the state corresponding to this step?
+             // Usually snapshot[i] is state at START of step i.
+             // But if we just 'played' step i, maybe we want to show state[i+1]?
+             // Let's stick to: Show the snapshot associated with the current timeline block.
+             renderMLFQSnapshot(lastResults.snapshots[timelineItem.snapshotIndex]);
+        }
+    }
+    
     return animState.currentIndex >= blocks.length;
 }
 
@@ -638,4 +743,42 @@ function updateAnimationUI() {
     } else {
         els.animPlayBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
     }
+}
+
+function renderMLFQSnapshot(snapshot) {
+    const viz = document.getElementById('mlfqViz');
+    if (!viz) return;
+    viz.classList.remove('hidden');
+
+    const queues = snapshot.queues;
+    
+    // Update each queue track
+    queues.forEach((q, index) => {
+        const track = viz.querySelector(`.queue-track[data-id="${index}"] .queue-content`);
+        if (!track) return;
+        
+        track.innerHTML = '';
+        
+        q.forEach(p => {
+            const el = document.createElement('div');
+            el.className = 'queue-process';
+            
+            // Highlight if running
+            if (p.id === snapshot.runningId) {
+                el.classList.add('active');
+            }
+            
+            el.innerHTML = `P${p.id}`;
+            
+            // Show age if > 0
+            if (p.age > 0) {
+                const ageBadge = document.createElement('div');
+                ageBadge.className = 'process-age-badge';
+                ageBadge.textContent = p.age;
+                el.appendChild(ageBadge);
+            }
+            
+            track.appendChild(el);
+        });
+    });
 }

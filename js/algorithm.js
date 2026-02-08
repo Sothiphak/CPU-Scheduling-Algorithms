@@ -213,22 +213,30 @@ window.Algorithm = (function() {
         return { processes: procs, timeline };
     }
 
-    function mlfq(processes) {
+    function mlfq(processes, quantums = [2, 4, Infinity]) {
         const timeline = [];
+        const snapshots = []; // For visualization
         const procs = JSON.parse(JSON.stringify(processes));
+        // Ensure 3 quantums, fallback to defaults if not provided correctly
+        const qLevels = [
+            (quantums[0] !== undefined && !isNaN(quantums[0])) ? quantums[0] : 2,
+            (quantums[1] !== undefined && !isNaN(quantums[1])) ? quantums[1] : 4,
+            (quantums[2] !== undefined && !isNaN(quantums[2])) ? quantums[2] : Infinity
+        ];
+        
         const queues = [[], [], []]; 
-        const quantums = [2, 4, Infinity];
         const AGING_THRESHOLD = 20;
         
         let currentTime = 0;
         const arrived = new Set();
+        // Track which queue each process is currently in for visualization
         const queueLevel = {}; 
 
         procs.sort((a, b) => a.arrival - b.arrival);
         procs.forEach(p => {
             p.remaining = p.burst;
             p.age = 0;
-            queueLevel[p.id] = 0;
+            queueLevel[p.id] = 0; // Default starts at Q0
         });
 
         const checkArrivals = (time) => {
@@ -242,10 +250,39 @@ window.Algorithm = (function() {
         }
 
         checkArrivals(currentTime);
+        // Jump time if idle
         if (arrived.size === 0 && procs.length > 0) {
-            currentTime = procs[0].arrival;
+            // Add idle time to timeline if needed
+            const nextArrival = procs[0].arrival;
+            if (nextArrival > currentTime) {
+                // Optional: record idle
+                currentTime = nextArrival;
+            }
             checkArrivals(currentTime);
         }
+
+        // Snapshot Helper
+        const recordSnapshot = (runningProcId = null) => {
+            const snap = {
+                time: currentTime,
+                runningId: runningProcId,
+                queues: [[], [], []]
+            };
+            
+            // Record state of each queue
+            for(let i=0; i<3; i++) {
+                snap.queues[i] = queues[i].map(p => ({
+                    id: p.id,
+                    age: p.age,
+                    burst: p.burst,
+                    remaining: p.remaining
+                }));
+            }
+            snapshots.push(snap);
+        };
+
+        // Initial snapshot
+        recordSnapshot();
 
         while (procs.some(p => p.remaining > 0)) {
             let currentQueue = -1;
@@ -257,8 +294,10 @@ window.Algorithm = (function() {
             }
 
             if (currentQueue === -1) {
+                // If idle, advance time
                 currentTime++;
                 checkArrivals(currentTime);
+                recordSnapshot(null);
                 continue;
             }
 
@@ -269,26 +308,50 @@ window.Algorithm = (function() {
                  proc.responseTime = currentTime - proc.arrival;
             }
 
-            const quantum = quantums[currentQueue];
-            const execTime = Math.min(quantum, proc.remaining);
+            const quantum = qLevels[currentQueue];
+            let execTime = 0;
+
+            // Execute unit by unit to capture snapshots for animation (optional but smoother)
+            // Or execute in chunks. For granular animation, let's step.
+            // But to keep performance decent, we can execute the full slice but record frames?
+            // "replay" usually steps through the Gantt blocks. 
+            // The Gantt blocks are often > 1 unit. 
+            // We should record snapshot at the START of this execution block.
+            
+            const timeToRun = Math.min(quantum, proc.remaining);
             
             timeline.push({
                 process: proc.id,
                 start: currentTime,
-                duration: execTime,
-                colorIndex: (proc.id - 1) % 8
+                duration: timeToRun,
+                colorIndex: (proc.id - 1) % 8,
+                snapshotIndex: snapshots.length // Link to a snapshot state
             });
-
+            
+            // Record snapshot implies "State BEFORE this block runs"
+            // We already did recordSnapshot at loop start or previous end.
+            
+            execTime = timeToRun;
             proc.remaining -= execTime;
-            proc.age = 0; 
+            
+            // Age others
+            // Only increment age for queues LOWER than current? 
+            // Or all waiting processes? Usually all waiting in lower queues.
+            // "queues[i][j].age += execTime" logic was:
+            // "for(let qIdx = 0; qIdx < 3; qIdx++) queues[qIdx].forEach..."
+            // But waiting in higher queue is not usually aging. Usually standard MLFQ ages from bottom up.
+            // The existing code aged everyone. We keep that logic.
             
             for(let qIdx = 0; qIdx < 3; qIdx++) {
                 queues[qIdx].forEach(p => p.age += execTime);
             }
-            
+
             currentTime += execTime;
             checkArrivals(currentTime);
+            proc.age = 0; // Reset age of running process
 
+            // Aging Promotion Check
+            let promoted = false;
             for (let i = 1; i < 3; i++) {
                 for (let j = queues[i].length - 1; j >= 0; j--) {
                     if (queues[i][j].age >= AGING_THRESHOLD) {
@@ -297,12 +360,15 @@ window.Algorithm = (function() {
                         const newLevel = i - 1;
                         queues[newLevel].push(p);
                         queueLevel[p.id] = newLevel;
+                        promoted = true;
                     }
                 }
             }
 
+            // Re-queue current process
             if (proc.remaining > 0) {
                 let nextQueue = currentQueue;
+                // Demotion: If used full quantum AND not already at bottom AND didn't just get promoted (rare edge)
                 if (execTime === quantum && currentQueue < 2) {
                     nextQueue = currentQueue + 1;
                 }
@@ -313,9 +379,12 @@ window.Algorithm = (function() {
                 proc.turnaroundTime = proc.completionTime - proc.arrival;
                 proc.waitingTime = proc.turnaroundTime - proc.burst;
             }
+            
+            // Record snapshot for NEXT step
+            recordSnapshot(null);
         }
 
-        return { processes: procs, timeline };
+        return { processes: procs, timeline, snapshots };
     }
 
     return { fcfs, sjf, srt, rr, mlfq };
